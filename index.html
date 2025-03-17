@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FileFlow - Professional File Converter</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #4f46e5;
+            --accent: #22d3ee;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+            flex: 1;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+
+        .tool-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .tool-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .tool-card h2 {
+            color: var(--dark);
+            margin-bottom: 1rem;
+            font-weight: 600;
+            font-size: 1.5rem;
+        }
+
+        .tool-card p {
+            color: var(--gray);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            margin: 1.5rem 0;
+        }
+
+        .file-input {
+            opacity: 0;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-input-label {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .file-input-label:hover {
+            background-color: var(--secondary);
+            transform: translateY(-1px);
+        }
+
+        .convert-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 1rem 2.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .convert-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            bottom: -50%;
+            left: -50%;
+            background: linear-gradient(45deg, transparent 25%, rgba(255,255,255,0.1) 50%, transparent 75%);
+            transform: rotateZ(60deg) translate(-5em, 7.5em);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            100% { transform: rotateZ(60deg) translate(5em, -7.5em); }
+        }
+
+        .convert-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px -3px rgba(37, 99, 235, 0.3);
+        }
+
+        footer {
+            background: var(--dark);
+            color: white;
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: auto;
+        }
+
+        .preview-container {
+            margin: 1.5rem 0;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            background: #f1f5f9;
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .quality-control {
+            margin: 1.5rem 0;
+        }
+
+        .quality-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+            font-weight: 500;
+        }
+
+        .quality-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #e2e8f0;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .quality-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .quality-slider::-webkit-slider-thumb:hover {
+            background: var(--secondary);
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #e2e8f0;
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+                margin: 2rem auto;
+            }
+
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tool-card {
+                padding: 1.5rem;
+            }
+
+            header {
+                padding: 1.5rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>FileFlow Pro</h1>
+            <p>Professional-grade file conversions made simple</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="tools-grid">
+            <!-- PDF to DOC -->
+            <div class="tool-card">
+                <i class="fas fa-file-pdf tool-icon"></i>
+                <h2>PDF to DOC Converter</h2>
+                <p>Convert PDF documents to editable Word files with perfect formatting</p>
+                <div class="file-input-wrapper">
+                    <input type="file" class="file-input" accept=".pdf" id="pdfInput">
+                    <label for="pdfInput" class="file-input-label">
+                        <i class="fas fa-upload"></i>
+                        Choose PDF File
+                    </label>
+                </div>
+                <button class="convert-btn" onclick="convertPdfToDoc()">
+                    Convert Now
+                </button>
+            </div>
+
+            <!-- Image Compressor -->
+            <div class="tool-card">
+                <i class="fas fa-image tool-icon"></i>
+                <h2>Image Compressor</h2>
+                <p>Optimize images while maintaining visual quality</p>
+                <div class="file-input-wrapper">
+                    <input type="file" class="file-input" accept="image/*" id="imageInput">
+                    <label for="imageInput" class="file-input-label">
+                        <i class="fas fa-upload"></i>
+                        Choose Image
+                    </label>
+                </div>
+                <div class="preview-container" id="previewContainer">
+                    <img class="preview-image" id="previewImage">
+                    <div class="upload-prompt">Image Preview</div>
+                </div>
+                <div class="quality-control">
+                    <label class="quality-label">Compression Quality: <span id="qualityValue">80</span>%</label>
+                    <input type="range" min="0" max="1" step="0.1" value="0.8" 
+                           class="quality-slider" id="qualitySlider"
+                           oninput="document.getElementById('qualityValue').textContent = Math.round(this.value * 100)">
+                </div>
+                <button class="convert-btn" onclick="compressImage()">
+                    Compress Image
+                </button>
+            </div>
+
+            <!-- DOC to PPT -->
+            <div class="tool-card">
+                <i class="fas fa-file-word tool-icon"></i>
+                <h2>DOC to PPT Converter</h2>
+                <p>Transform Word documents into presentation-ready PowerPoint files</p>
+                <div class="file-input-wrapper">
+                    <input type="file" class="file-input" accept=".doc,.docx" id="docInput">
+                    <label for="docInput" class="file-input-label">
+                        <i class="fas fa-upload"></i>
+                        Choose DOC File
+                    </label>
+                </div>
+                <button class="convert-btn" onclick="convertDocToPpt()">
+                    Convert Now
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+
+    <footer>
+        <p>© 2023 FileFlow Pro. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Loading state simulation
+        function showLoading() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            setTimeout(() => {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }, 1500);
+        }
+
+        // PDF to DOC
+        function convertPdfToDoc() {
+            const fileInput = document.getElementById('pdfInput');
+            if (!fileInput.files[0]) return alert('Please select a PDF file');
+            showLoading();
+            // Backend integration required
+        }
+
+        // Image Compressor
+        let compressedBlob = null;
+
+        document.getElementById('imageInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const previewImage = document.getElementById('previewImage');
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    previewImage.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function compressImage() {
+            const file = document.getElementById('imageInput').files[0];
+            const quality = document.getElementById('qualitySlider').value;
+            
+            if (!file) return alert('Please select an image');
+            showLoading();
+
+            new Compressor(file, {
+                quality: quality,
+                success(result) {
+                    compressedBlob = result;
+                    document.getElementById('previewImage').src = URL.createObjectURL(result);
+                    document.getElementById('loadingOverlay').style.display = 'none';
+                },
+                error(err) {
+                    console.error(err);
+                    document.getElementById('loadingOverlay').style.display = 'none';
+                    alert('Compression failed');
+                }
+            });
+        }
+
+        // DOC to PPT
+        function convertDocToPpt() {
+            const fileInput = document.getElementById('docInput');
+            if (!fileInput.files[0]) return alert('Please select a DOC file');
+            showLoading();
+            // Backend integration required
+        }
+
+        // Download compressed image
+        document.getElementById('previewImage').addEventListener('click', function() {
+            if (compressedBlob) {
+                const link = document.createElement('a');
+                link.download = `compressed_${Date.now()}.jpg`;
+                link.href = URL.createObjectURL(compressedBlob);
+                link.click();
+            }
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/compressorjs@1.1.1/dist/compressor.min.js"></script>
+</body>
+  </html>
